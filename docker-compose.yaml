@@ -1,0 +1,13 @@
+version: "3"
+services:
+    web:
+        build: .
+        ports:
+            - "3000:3000"
+    mysql:
+        image: "mysql:latest"
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+          MYSQL_ROOT_PASSWORD: wiem
+          MYSQL_DATABASE: mysql
