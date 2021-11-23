@@ -1,76 +1,61 @@
 'use strict';
 
-const express = require('express');
+const express = require('express')
 const mysql = require('mysql')
-const fs = require('fs')
 
 // Constants
-const PORT = 3000;
-const HOST = '0.0.0.0';
+const PORT = 3000
+const HOST = `0.0.0.0`
 
 // App
-const app = express();
-app.get('/', (req, res) => {
-    const message = `hello to my sample flask app, I have been seen ${getHitCount()} times\n`
-    res.send(message);
-});
+const app = express()
 
-const getHitCount = () => {
-    const client = mysql.createConnection({
-        user: 'root',
-        host:'mysql',
-        database:'counter-db',
-        password:'wiem'
-    })
-    client.connect((err) => {
-        if(err) {
+const db = mysql.createConnection({
+    host: `mysql`,
+    user: `root`,
+    password: `wiem`,
+    database: `counter-db`,
+})
+
+let response = null
+let hasCreatedDatabase = false
+
+app.get(`/`, async (req, res) => {
+    response = res
+    if(!hasCreatedDatabase)
+        createDatabaseAndUpdateCounter(response)
+    else
+        updateCounter(response)
+})
+
+const createDatabaseAndUpdateCounter = response => {
+    db.query(`DROP TABLE IF EXISTS counter`, (err, result1) => {
+        if(err)
             console.log(err)
-            return err.message
-        }
         else{
-            console.log('no connection error')
-            client.query(`INSERT INTO hit(dummy) VALUES(1)`, (err, result1) => {
-                if(err){
+            db.query(`CREATE TABLE IF NOT EXISTS counter (id int NOT NULL PRIMARY KEY AUTO_INCREMENT, number int NOT NULL)`, (err, result2) => {
+                if(err)
                     console.log(err)
-                    return err.message
-                }
                 else{
-                    console.log(result1)
-                    client.query(`SELECT MAX(number) FROM hit`, (err, result2) => {
-                        if(err){
-                            console.log(err)
-                            return err.message
-                        }
-                        else{
-                            console.log(result2)
-                            return result2.toString()
-                        }
-                    })
+                    hasCreatedDatabase = true
+                    updateCounter(response)
                 }
             })
         }
     })
 }
 
-app.listen(PORT, HOST, () => {
-    console.log(`Running on http://${HOST}:${PORT}`);
-    const dbFilePath = `${__dirname}/populate.sql`
-    const sql = fs.readFileSync(dbFilePath).toString()
-    const client = mysql.createConnection({
-        user: 'root',
-        host:'mysql',
-        database:'mysql',
-        password:'wiem'
-    })
-    client.connect((err) => {
-        if(err) {
+const updateCounter = response => {
+    db.query(`INSERT INTO counter(number) VALUES (0)`, (err, results, fields) => {
+        if(err)
             console.log(err)
-        }
         else{
-            console.log('no connection error')
-            client.query(sql, (err) => {
-                console.log(err)
-            })
+            console.log(results)
+            response.send(`Hello to my sample NodeJS app, I have been seen ${results.insertId} times`)
         }
     })
-});
+}
+
+app.listen(PORT, HOST, () => {
+    console.log(`Running on http://${HOST}:${PORT}`)
+})
