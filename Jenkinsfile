@@ -10,7 +10,7 @@ pipeline {
 		stage('Build') {
 			steps {
 				bat 'docker build -t "node-counter" .'
-				bat 'docker run -p 127.0.0.1:3000:3000/tcp node-counter'
+				bat 'docker run -p 0.0.0.0:3000:3000/tcp node-counter'
 			}
 		}
     }
