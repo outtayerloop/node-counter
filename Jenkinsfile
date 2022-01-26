@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     stages {
-        stage('Pull') {
+        stage('Test') {
             steps {
-                git([url:'https://github.com/wiwiii/node-counter/', branch:'master'])
+                bat 'echo "banane"'
             }
         }
     }
