@@ -9,7 +9,7 @@ pipeline {
 		}
 		stage('Build') {
 			steps {
-				bat 'echo "banane"'
+				bat 'docker build -t "node-counter" .'
 			}
 		}
     }
