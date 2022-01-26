@@ -28,6 +28,10 @@ app.get(`/`, async (req, res) => {
         updateCounter(response)
 })
 
+app.get(`/test`, async (req, res) => {
+    res.send(`Hello`)
+})
+
 const createDatabaseAndUpdateCounter = response => {
     db.query(`DROP TABLE IF EXISTS counter`, (err, result1) => {
         if(err)
